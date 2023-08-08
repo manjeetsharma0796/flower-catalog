@@ -4,24 +4,21 @@ const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
 const handleHome = (_, response) => {
-  const home = fs.readFileSync("./resource/index.html", "utf-8");
+  const home = fs.readFileSync("./html/index.html", "utf-8");
   response.setStatus(200);
   response.setContent(home);
   response.send();
 };
 
 const handleAbeliophyllum = (_, response) => {
-  const abeliophyllum = fs.readFileSync(
-    "./resource/abeliophyllum.html",
-    "utf-8"
-  );
+  const abeliophyllum = fs.readFileSync("./html/abeliophyllum.html", "utf-8");
   response.setStatus(200);
   response.setContent(abeliophyllum);
   response.send();
 };
 
 const handleAgeratum = (_, response) => {
-  const ageratum = fs.readFileSync("./resource/ageratum.html", "utf-8");
+  const ageratum = fs.readFileSync("./html/ageratum.html", "utf-8");
   response.setStatus(200);
   response.setContent(ageratum);
   response.send();
