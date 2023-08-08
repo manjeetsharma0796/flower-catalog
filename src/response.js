@@ -1,10 +1,3 @@
-const statusDetail = {
-  200: "OK",
-  400: "Bad Request",
-  404: "Not Found",
-  405: "Method Not Allowed",
-};
-
 class Response {
   #socket;
   #protocol;
@@ -12,10 +5,17 @@ class Response {
   #status;
   #contentLength;
   #content;
+  #statusDetail;
 
   constructor(socket) {
     this.#socket = socket;
     this.#protocol = "HTTP/1.1";
+    this.#statusDetail = {
+      200: "OK",
+      400: "Bad Request",
+      404: "Not Found",
+      405: "Method Not Allowed",
+    };
   }
 
   #getCurrentDate() {
@@ -41,7 +41,7 @@ class Response {
 
   setStatus(statusCode) {
     this.#statusCode = statusCode;
-    this.#status = statusDetail[statusCode];
+    this.#status = this.#statusDetail[statusCode];
   }
 
   setContent(content) {

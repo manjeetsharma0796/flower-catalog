@@ -31,14 +31,14 @@ const handleValidUri = (request, response) => {
   handleNotFound(request, response);
 };
 
-const handleRequestAndResponse = (request, response) => {
+const handle = (request, response) => {
   handleValidUri(request, response);
 };
 
 const onIncomingRequest = (socket, data) => {
   const request = parseRequest(data);
   const response = new Response(socket);
-  handleRequestAndResponse(request, response);
+  handle(request, response);
 };
 
 const handleConnection = (socket) => {
@@ -46,4 +46,4 @@ const handleConnection = (socket) => {
   socket.on("data", (data) => onIncomingRequest(socket, data));
 };
 
-module.exports = { handleRequestAndResponse, handleConnection };
+module.exports = { handleConnection };
