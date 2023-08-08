@@ -7,6 +7,7 @@ module.exports = {
     "semi": ["error", "always", { omitLastInOneLineBlock: true }],
     "quotes": ["error", "double"],
     "indent": ["error", 2, { SwitchCase: 1 }],
+    "no-console": "error",
     "complexity": ["error", 4],
     "array-callback-return": ["error", { checkForEach: true }],
     "max-depth": ["error", 2],
@@ -16,7 +17,7 @@ module.exports = {
     "no-implicit-coercion": "warn",
     "no-implicit-globals": "error",
     "no-param-reassign": "error",
-    "id-denylist": ["error", "data", "callback"],
+    "id-denylist": ["error", "callback"],
     "no-extra-semi": "error",
     "array-callback-return": ["error"],
     "key-spacing": ["error"],
@@ -56,7 +57,7 @@ module.exports = {
     "for-direction": "error",
     "id-length": [
       "error",
-      { exceptions: ["a", "b", "x", "y", "z", "id", "#id"], min: 3, max: 28 },
+      { exceptions: ["a", "b", "x", "y", "z", "_"], min: 2, max: 28 },
     ],
   },
 };

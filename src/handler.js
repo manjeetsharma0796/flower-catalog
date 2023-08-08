@@ -4,8 +4,7 @@ const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
 const handleHome = (_, response) => {
-  const home = fs.readFileSync("./index.html", "utf-8");
-  console.log(home);
+  const home = fs.readFileSync("./resource/index.html", "utf-8");
   response.setContent(home);
   response.setStatus(200);
   response.send();
@@ -37,7 +36,6 @@ const handleRequestAndResponse = (request, response) => {
 };
 
 const onIncomingRequest = (socket, data) => {
-  console.log(data);
   const request = parseRequest(data);
   const response = new Response(socket);
   handleRequestAndResponse(request, response);
