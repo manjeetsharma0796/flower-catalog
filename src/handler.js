@@ -48,7 +48,6 @@ const handle = (request, response) => {
 };
 
 const onIncomingRequest = (socket, data) => {
-  console.log(data);
   const request = parseRequest(data);
   const response = new Response(socket);
   handle(request, response);
