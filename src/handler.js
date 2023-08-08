@@ -7,9 +7,8 @@ const handleHome = (_, response) => {
   fs.readFile("./html/index.html", "utf-8", (err, data) => {
     if (err) console.error(err);
 
-    const home = data;
     response.setStatus(200);
-    response.setContent(home);
+    response.setContent(data);
     response.send();
   });
 };
@@ -18,9 +17,8 @@ const handleAbeliophyllum = (_, response) => {
   fs.readFile("./html/abeliophyllum.html", "utf-8", (err, data) => {
     if (err) console.error(err);
 
-    const abeliophyllum = data;
     response.setStatus(200);
-    response.setContent(abeliophyllum);
+    response.setContent(data);
     response.send();
   });
 };
@@ -29,9 +27,8 @@ const handleAgeratum = (_, response) => {
   fs.readFile("./html/ageratum.html", "utf-8", (err, data) => {
     if (err) console.error(err);
 
-    const ageratum = data;
     response.setStatus(200);
-    response.setContent(ageratum);
+    response.setContent(data);
     response.send();
   });
 };
