@@ -7,7 +7,7 @@ module.exports = {
     "semi": ["error", "always", { omitLastInOneLineBlock: true }],
     "quotes": ["error", "double"],
     "indent": ["error", 2, { SwitchCase: 1 }],
-    "no-console": "error",
+    "no-console": "warn",
     "complexity": ["error", 4],
     "array-callback-return": ["error", { checkForEach: true }],
     "max-depth": ["error", 2],

@@ -4,24 +4,36 @@ const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
 const handleHome = (_, response) => {
-  const home = fs.readFileSync("./html/index.html", "utf-8");
-  response.setStatus(200);
-  response.setContent(home);
-  response.send();
+  fs.readFile("./html/index.html", "utf-8", (err, data) => {
+    if (err) console.error(err);
+
+    const home = data;
+    response.setStatus(200);
+    response.setContent(home);
+    response.send();
+  });
 };
 
 const handleAbeliophyllum = (_, response) => {
-  const abeliophyllum = fs.readFileSync("./html/abeliophyllum.html", "utf-8");
-  response.setStatus(200);
-  response.setContent(abeliophyllum);
-  response.send();
+  fs.readFile("./html/abeliophyllum.html", "utf-8", (err, data) => {
+    if (err) console.error(err);
+
+    const abeliophyllum = data;
+    response.setStatus(200);
+    response.setContent(abeliophyllum);
+    response.send();
+  });
 };
 
 const handleAgeratum = (_, response) => {
-  const ageratum = fs.readFileSync("./html/ageratum.html", "utf-8");
-  response.setStatus(200);
-  response.setContent(ageratum);
-  response.send();
+  fs.readFile("./html/ageratum.html", "utf-8", (err, data) => {
+    if (err) console.error(err);
+
+    const ageratum = data;
+    response.setStatus(200);
+    response.setContent(ageratum);
+    response.send();
+  });
 };
 
 const handleNotFound = (request, response) => {

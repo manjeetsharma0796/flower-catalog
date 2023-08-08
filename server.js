@@ -5,7 +5,7 @@ const main = () => {
   const port = 8000;
   const server = net.createServer();
   server.on("connection", handleConnection);
-  server.listen(port, () => process.stdout.write(`listening on ${port}`));
+  server.listen(port, () => console.log("listening on", port));
 };
 
 main();
