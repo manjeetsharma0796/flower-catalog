@@ -5,8 +5,25 @@ const { Response } = require("./response");
 
 const handleHome = (_, response) => {
   const home = fs.readFileSync("./resource/index.html", "utf-8");
-  response.setContent(home);
   response.setStatus(200);
+  response.setContent(home);
+  response.send();
+};
+
+const handleAbeliophyllum = (_, response) => {
+  const abeliophyllum = fs.readFileSync(
+    "./resource/abeliophyllum.html",
+    "utf-8"
+  );
+  response.setStatus(200);
+  response.setContent(abeliophyllum);
+  response.send();
+};
+
+const handleAgeratum = (_, response) => {
+  const ageratum = fs.readFileSync("./resource/ageratum.html", "utf-8");
+  response.setStatus(200);
+  response.setContent(ageratum);
   response.send();
 };
 
@@ -17,10 +34,12 @@ const handleNotFound = (request, response) => {
   response.send();
 };
 
-const handleValidUri = (request, response) => {
+const handle = (request, response) => {
   const { uri } = request;
   const uriResponses = {
     "/": handleHome,
+    "/abeliophyllum.html": handleAbeliophyllum,
+    "/ageratum.html": handleAgeratum,
   };
 
   if (uri in uriResponses) {
@@ -31,11 +50,8 @@ const handleValidUri = (request, response) => {
   handleNotFound(request, response);
 };
 
-const handle = (request, response) => {
-  handleValidUri(request, response);
-};
-
 const onIncomingRequest = (socket, data) => {
+  console.log(data);
   const request = parseRequest(data);
   const response = new Response(socket);
   handle(request, response);
