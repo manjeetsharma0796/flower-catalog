@@ -1,16 +1,13 @@
+const fs = require("fs");
+
 const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
 const handleHome = (_, response) => {
-  response.setStatus(200);
-  const home = `<html>
-      <body>
-        <main>
-          <header>Flower Catalog</header>
-        </main>
-      </body>
-    </html>`;
+  const home = fs.readFileSync("./index.html", "utf-8");
+  console.log(home);
   response.setContent(home);
+  response.setStatus(200);
   response.send();
 };
 
