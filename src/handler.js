@@ -42,6 +42,11 @@ const handle = (request, response) => {
     handleHome(request, response);
     return;
   }
+  
+  if (!request.uri.startsWith("resource")) {
+    handleNotFound("", response);
+    return;
+  }
 
   handleRoute(request, response);
 };
