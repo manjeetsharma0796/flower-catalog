@@ -1,10 +1,8 @@
 const extractType = (uri) => {
   const type = uri.split(".").slice(1).join("");
-  if (type === "jpg") {
-    return `image/${type}`;
-  }
+  const isImageType = type === "jpg" || type === "jpeg";
 
-  return `text/${type}`;
+  return isImageType ? `image/${type}` : `text/${type}`;
 };
 
 const parseRequest = (rawRequest) => {
