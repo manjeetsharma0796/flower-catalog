@@ -5,7 +5,10 @@ const { Response } = require("./response");
 
 const readFile = (path, response, type) => {
   fs.readFile(path, (err, data) => {
-    if (err) console.log(err);
+    if (err) {
+      console.log(err);
+      return;
+    }
 
     response.setStatus(200);
     response.setContent(data, type);
@@ -20,20 +23,20 @@ const handleHome = (request, response) => {
 };
 
 const handleAbeliophyllum = (request, response) => {
-  const path = "html/abeliophyllum.html";
-  const type = "text/html";
+  const { uri, type } = request;
+  const path = uri.replace("/", "");
   readFile(path, response, type);
 };
 
 const handleAgeratum = (request, response) => {
-  const path = "html/ageratum.html";
-  const type = "text/html";
+  const { uri, type } = request;
+  const path = uri.replace("/", "");
   readFile(path, response, type);
 };
 
 const handleImage = (request, response) => {
-  const path = request.uri.slice(1);
-  const type = "image/jpg";
+  const { uri, type } = request;
+  const path = uri.replace("/", "");
   readFile(path, response, type);
 };
 
@@ -49,8 +52,8 @@ const handle = (request, response) => {
   const { uri } = request;
   const uriResponses = {
     "/": handleHome,
-    "/abeliophyllum.html": handleAbeliophyllum,
-    "/ageratum.html": handleAgeratum,
+    "/html/abeliophyllum.html": handleAbeliophyllum,
+    "/html/ageratum.html": handleAgeratum,
     "/resource/freshorigins.jpg": handleImage,
     "/resource/pbase-Abeliophyllum.jpg": handleImage,
     "/resource/pbase-agerantum.jpg": handleImage,
