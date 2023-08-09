@@ -26,7 +26,7 @@ const readFile = (path, response, type) => {
 };
 
 const handleHome = (_, response) => {
-  const path = "html/index.html";
+  const path = "resource/html/index.html";
   const type = "text/html";
   readFile(path, response, type);
 };

@@ -1,8 +1,18 @@
 const extractType = (uri) => {
-  const type = uri.split(".").slice(1).join("");
-  const isImageType = type === "jpg" || type === "jpeg";
+  const mime = {
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "html": "text/html",
+    "css": "text/css",
+    "": "text/plain",
+  };
 
-  return isImageType ? `image/${type}` : `text/${type}`;
+  if (uri === "/") {
+    return "text/html";
+  }
+
+  const [type] = uri.match(/(\w+)$/g);
+  return mime[type];
 };
 
 const parseRequest = (rawRequest) => {
@@ -12,7 +22,7 @@ const parseRequest = (rawRequest) => {
   const headerInfo = Object.fromEntries(
     rawHeaderLines.map((rawHeaderLine) => rawHeaderLine.trim().split(": "))
   );
-  console.log(uri);
+  
   return { method, uri, protocol, headerInfo, type };
 };
 
