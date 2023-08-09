@@ -22,19 +22,7 @@ const handleHome = (request, response) => {
   readFile(path, response, type);
 };
 
-const handleAbeliophyllum = (request, response) => {
-  const { uri, type } = request;
-  const path = uri.replace("/", "");
-  readFile(path, response, type);
-};
-
-const handleAgeratum = (request, response) => {
-  const { uri, type } = request;
-  const path = uri.replace("/", "");
-  readFile(path, response, type);
-};
-
-const handleImage = (request, response) => {
+const handleRoute = (request, response) => {
   const { uri, type } = request;
   const path = uri.replace("/", "");
   readFile(path, response, type);
@@ -52,11 +40,21 @@ const handle = (request, response) => {
   const { uri } = request;
   const uriResponses = {
     "/": handleHome,
-    "/html/abeliophyllum.html": handleAbeliophyllum,
-    "/html/ageratum.html": handleAgeratum,
-    "/resource/freshorigins.jpg": handleImage,
-    "/resource/pbase-Abeliophyllum.jpg": handleImage,
-    "/resource/pbase-agerantum.jpg": handleImage,
+    "/html/abeliophyllum.html": handleRoute,
+    "/html/ageratum.html": handleRoute,
+    "/html/agapanthus.html": handleRoute,
+    "/html/african.html": handleRoute,
+    "/html/amaryllis.html": handleRoute,
+    "/html/arctotis.html": handleRoute,
+    "/resource/freshorigins.jpg": handleRoute,
+    "/resource/pbase-Abeliophyllum.jpg": handleRoute,
+    "/resource/pbase-agerantum.jpg": handleRoute,
+    "/resource/african.jpeg": handleRoute,
+    "/resource/amaryllis.jpg": handleRoute,
+    "/resource/arctotis.jpg": handleRoute,
+    "/resource/agapanthus.jpeg": handleRoute,
+    "/css/flower-style.css": handleRoute,
+    "/css/home-style.css": handleRoute,
   };
 
   if (uri in uriResponses) {

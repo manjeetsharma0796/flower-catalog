@@ -17,7 +17,7 @@ class Response {
   }
 
   #formatStatusLine() {
-    return `${this.#protocol} ${this.#statusCode} ${this.#status}`;
+    return `${this.#protocol} ${this.#statusCode} ${this.#status}\n`;
   }
 
   #formatHeader() {
