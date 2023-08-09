@@ -5,6 +5,7 @@ class Response {
   #status;
   #contentLength;
   #content;
+  #contentType;
   #statusDetail;
 
   constructor(socket) {
@@ -44,7 +45,7 @@ class Response {
     this.#status = this.#statusDetail[statusCode];
   }
 
-  setContent(content) {
+  setContent(content, type = "text") {
     this.#content = content;
     this.#contentLength = content.length;
   }

@@ -3,8 +3,8 @@ const fs = require("fs");
 const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
-const handleHome = (_, response) => {
-  fs.readFile("./html/index.html", "utf-8", (err, data) => {
+const readFile = (path, response) => {
+  fs.readFile(path, "utf-8", (err, data) => {
     if (err) console.error(err);
 
     response.setStatus(200);
@@ -13,24 +13,19 @@ const handleHome = (_, response) => {
   });
 };
 
-const handleAbeliophyllum = (_, response) => {
-  fs.readFile("./html/abeliophyllum.html", "utf-8", (err, data) => {
-    if (err) console.error(err);
-
-    response.setStatus(200);
-    response.setContent(data);
-    response.send();
-  });
+const handleHome = (request, response) => {
+  const path = "html/index.html";
+  readFile(path, response);
 };
 
-const handleAgeratum = (_, response) => {
-  fs.readFile("./html/ageratum.html", "utf-8", (err, data) => {
-    if (err) console.error(err);
+const handleAbeliophyllum = (request, response) => {
+  const path = "html/abeliophyllum.html";
+  readFile(path, response);
+};
 
-    response.setStatus(200);
-    response.setContent(data);
-    response.send();
-  });
+const handleAgeratum = (request, response) => {
+  const path = "html/ageratum.html";
+  readFile(path, response);
 };
 
 const handleNotFound = (request, response) => {
@@ -56,7 +51,8 @@ const handle = (request, response) => {
   handleNotFound(request, response);
 };
 
-const onIncomingRequest = (socket, data) => {
+const handleRequest = (socket, data) => {
+  console.log(data);
   const request = parseRequest(data);
   const response = new Response(socket);
   handle(request, response);
@@ -64,7 +60,7 @@ const onIncomingRequest = (socket, data) => {
 
 const handleConnection = (socket) => {
   socket.setEncoding("utf-8");
-  socket.on("data", (data) => onIncomingRequest(socket, data));
+  socket.on("data", (data) => handleRequest(socket, data));
 };
 
 module.exports = { handleConnection };
