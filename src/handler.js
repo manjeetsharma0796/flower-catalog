@@ -3,35 +3,45 @@ const fs = require("fs");
 const { parseRequest } = require("./request-parser");
 const { Response } = require("./response");
 
-const readFile = (path, response) => {
-  fs.readFile(path, "utf-8", (err, data) => {
-    if (err) console.error(err);
+const readFile = (path, response, type) => {
+  fs.readFile(path, (err, data) => {
+    if (err) console.log(err);
 
     response.setStatus(200);
-    response.setContent(data);
+    response.setContent(data, type);
     response.send();
   });
 };
 
 const handleHome = (request, response) => {
   const path = "html/index.html";
-  readFile(path, response);
+  const type = "text/html";
+  readFile(path, response, type);
 };
 
 const handleAbeliophyllum = (request, response) => {
   const path = "html/abeliophyllum.html";
-  readFile(path, response);
+  const type = "text/html";
+  readFile(path, response, type);
 };
 
 const handleAgeratum = (request, response) => {
   const path = "html/ageratum.html";
-  readFile(path, response);
+  const type = "text/html";
+  readFile(path, response, type);
+};
+
+const handleImage = (request, response) => {
+  const path = request.uri.slice(1);
+  const type = "image/jpg";
+  readFile(path, response, type);
 };
 
 const handleNotFound = (request, response) => {
   const content = `${request.uri} not found`;
+  const type = "text/plain";
   response.setStatus(404);
-  response.setContent(content);
+  response.setContent(content, type);
   response.send();
 };
 
@@ -41,6 +51,9 @@ const handle = (request, response) => {
     "/": handleHome,
     "/abeliophyllum.html": handleAbeliophyllum,
     "/ageratum.html": handleAgeratum,
+    "/resource/freshorigins.jpg": handleImage,
+    "/resource/pbase-Abeliophyllum.jpg": handleImage,
+    "/resource/pbase-agerantum.jpg": handleImage,
   };
 
   if (uri in uriResponses) {

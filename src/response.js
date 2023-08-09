@@ -29,15 +29,9 @@ class Response {
 
   #formatHeader() {
     const date = this.#getCurrentDate();
-    return `date: ${date}\r\ncontent-length: ${this.#contentLength}`;
-  }
-
-  #formatResponse() {
-    const statusLine = this.#formatStatusLine();
-    const header = this.#formatHeader();
-    const content = `${this.#content}`;
-
-    return `${statusLine}\r\n${header}\r\n\n${content}\r\n`;
+    return `date: ${date}\r\ncontent-length: ${
+      this.#contentLength
+    }\r\ncontent-type: ${this.#contentType}\r\n`;
   }
 
   setStatus(statusCode) {
@@ -45,14 +39,20 @@ class Response {
     this.#status = this.#statusDetail[statusCode];
   }
 
-  setContent(content, type = "text") {
+  setContent(content, type) {
     this.#content = content;
     this.#contentLength = content.length;
+    this.#contentType = type;
   }
 
   send() {
-    const response = this.#formatResponse();
-    this.#socket.write(response);
+    const startLine = this.#formatStatusLine();
+    const header = this.#formatHeader();
+
+    this.#socket.write(startLine);
+    this.#socket.write(header);
+    this.#socket.write("\r\n");
+    this.#socket.write(this.#content);
     this.#socket.end();
   }
 }
