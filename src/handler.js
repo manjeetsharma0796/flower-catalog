@@ -12,15 +12,17 @@ const handleNotFound = (path, response) => {
   response.send();
 };
 
-const readFile = (path, response, type) => {
+const handleResponse = (path, response, type) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       handleNotFound(path, response);
       return;
     }
 
+    response.setBody(data);
+    response.setHeader("Content-length", data.length);
+    response.setHeader("Content-type", type);
     response.setStatus(200);
-    response.setContent(data, type);
     response.send();
   });
 };
@@ -28,21 +30,13 @@ const readFile = (path, response, type) => {
 const handleHome = (_, response) => {
   const path = "resource/html/index.html";
   const type = "text/html";
-  readFile(path, response, type);
+  handleResponse(path, response, type);
 };
 
 const handleRoute = (request, response) => {
   const { uri, type } = request;
   const path = uri.replace("/", "");
-  readFile(path, response, type);
-};
-
-const handlePdf = (request, response) => {
-  const { uri, type } = request;
-  const path = uri.replace("/", "");
-
-  response.includeDisposition();
-  readFile(path, response, type);
+  handleResponse(path, response, type);
 };
 
 const handle = (request, response) => {
@@ -51,9 +45,10 @@ const handle = (request, response) => {
     return;
   }
 
-  if (request.uri.endsWith(".pdf")) {
-    handlePdf(request, response);
-    return;
+  const [extension] = request.uri.match(/\.(\w+)/g);
+  console.log(extension);
+  if (extension === ".pdf") {
+    response.setHeader("Content-Disposition", "attachment");
   }
 
   handleRoute(request, response);

@@ -3,14 +3,13 @@ class Response {
   #protocol;
   #statusCode;
   #status;
-  #contentLength;
-  #content;
-  #contentType;
-  #contentDisposition;
+  #headers;
+  #body;
 
   constructor(socket) {
     this.#socket = socket;
     this.#protocol = "HTTP/1.1";
+    this.#headers = {};
   }
 
   #getCurrentDate() {
@@ -22,20 +21,14 @@ class Response {
   }
 
   #formatHeader() {
-    const date = this.#getCurrentDate();
-    const header = `date: ${date}\r\ncontent-length: ${
-      this.#contentLength
-    }\r\ncontent-type: ${this.#contentType}\r\n`;
+    const date = `Date: ${this.#getCurrentDate()}\r\n`;
 
-    if (this.#contentDisposition) {
-      return header + `${this.#contentDisposition}\r\n`;
-    }
-
-    return header;
-  }
-
-  includeDisposition() {
-    this.#contentDisposition = `Content-disposition: attachment;`;
+    return (
+      `${date}` +
+      Object.entries(this.#headers).reduce((header, headerInfo) => {
+        return header + headerInfo.join(":") + "\r\n";
+      }, "")
+    );
   }
 
   setStatus(statusCode) {
@@ -50,10 +43,12 @@ class Response {
     this.#status = statusDetail[statusCode];
   }
 
-  setContent(content, type) {
-    this.#content = content;
-    this.#contentLength = content.length;
-    this.#contentType = type;
+  setHeader(key, value) {
+    this.#headers[key] = value;
+  }
+
+  setBody(content) {
+    this.#body = content;
   }
 
   send() {
@@ -63,7 +58,7 @@ class Response {
     this.#socket.write(startLine);
     this.#socket.write(header);
     this.#socket.write("\r\n");
-    this.#socket.write(this.#content);
+    this.#socket.write(this.#body);
     this.#socket.end();
   }
 }
