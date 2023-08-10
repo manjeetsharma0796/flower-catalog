@@ -1,4 +1,3 @@
-// const net = require("node:net");
 const http = require("node:http");
 const { handle } = require("./src/handler");
 

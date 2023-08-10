@@ -2,18 +2,19 @@ const fs = require("fs");
 
 const getMimeType = (url) => {
   const mime = {
-    "jpeg": "image/jpeg",
-    "jpg": "image/jpeg",
-    "html": "text/html",
-    "css": "text/css",
-    "txt": "text/plain",
-    "pdf": "text/pdf",
+    jpeg: "image/jpeg",
+    jpg: "image/jpeg",
+    gif: "image/gif",
+    html: "text/html",
+    css: "text/css",
+    txt: "text/plain",
+    pdf: "text/pdf",
   };
 
   if (url === "/") {
     return "text/html";
   }
-  
+
   const [type] = url.match(/(\w+)$/g);
   return mime[type];
 };
