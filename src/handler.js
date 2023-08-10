@@ -9,6 +9,7 @@ const getMimeType = (url) => {
     css: "text/css",
     txt: "text/plain",
     pdf: "text/pdf",
+    js: "text/javascript",
   };
 
   if (url === "/") {
@@ -56,12 +57,12 @@ const handleRoute = (request, response) => {
 };
 
 const handle = (request, response) => {
+  const [extension] = request.url.split(".").slice(-1);
+
   if (request.url === "/") {
     handleHome(request, response);
     return;
   }
-
-  const [extension] = request.url.split(".").slice(-1);
 
   if (extension === "pdf") {
     response.setHeader("Content-Disposition", "attachment");

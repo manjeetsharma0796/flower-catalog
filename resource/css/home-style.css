@@ -7,10 +7,9 @@
 }
 
 .page-head {
-  font-size: 2em;
   color: rgb(237, 167, 68);
   text-align: center;
-  padding: 0.5em;
+  padding: 1em;
   border-bottom: 1px solid black;
 }
 
@@ -22,4 +21,8 @@
   flex-direction: row;
   align-items: center;
   column-gap: 3em;
+}
+
+.hide {
+  visibility: hidden;
 }
