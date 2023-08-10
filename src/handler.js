@@ -1,15 +1,30 @@
 const fs = require("fs");
 
-const { parseRequest } = require("./request-parser");
-const { Response } = require("./response");
+const getMimeType = (url) => {
+  const mime = {
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "html": "text/html",
+    "css": "text/css",
+    "txt": "text/plain",
+    "pdf": "text/pdf",
+  };
+
+  if (url === "/") {
+    return "text/html";
+  }
+  
+  const [type] = url.match(/(\w+)$/g);
+  return mime[type];
+};
 
 const handleNotFound = (path, response) => {
   const content = `${path} not found`;
   const type = "text/plain";
 
-  response.setStatus(404);
-  response.setContent(content, type);
-  response.send();
+  response.statusCode = 404;
+  response.setHeader("Content-Type", type);
+  response.end(content);
 };
 
 const handleResponse = (path, response, type) => {
@@ -19,11 +34,11 @@ const handleResponse = (path, response, type) => {
       return;
     }
 
-    response.setBody(data);
-    response.setHeader("Content-length", data.length);
-    response.setHeader("Content-type", type);
-    response.setStatus(200);
-    response.send();
+    response.writeHead(200, {
+      "Content-type": type,
+      "Content-Length": data.length,
+    });
+    response.end(data);
   });
 };
 
@@ -34,36 +49,24 @@ const handleHome = (_, response) => {
 };
 
 const handleRoute = (request, response) => {
-  const { uri, type } = request;
-  const path = uri.replace("/", "");
+  const path = request.url.replace("/", "");
+  const type = getMimeType(request.url);
   handleResponse(path, response, type);
 };
 
 const handle = (request, response) => {
-  if (request.uri === "/") {
+  if (request.url === "/") {
     handleHome(request, response);
     return;
   }
 
-  const [extension] = request.uri.match(/\.(\w+)/g);
-  console.log(extension);
-  if (extension === ".pdf") {
+  const [extension] = request.url.split(".").slice(-1);
+
+  if (extension === "pdf") {
     response.setHeader("Content-Disposition", "attachment");
   }
 
   handleRoute(request, response);
 };
 
-const handleRequest = (socket, data) => {
-  console.log(data);
-  const request = parseRequest(data);
-  const response = new Response(socket);
-  handle(request, response);
-};
-
-const handleConnection = (socket) => {
-  socket.setEncoding("utf-8");
-  socket.on("data", (data) => handleRequest(socket, data));
-};
-
-module.exports = { handleConnection };
+module.exports = { handle };
