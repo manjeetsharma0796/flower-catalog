@@ -37,14 +37,22 @@ const handleRoute = (request, response) => {
   readFile(path, response, type);
 };
 
+const handlePdf = (request, response) => {
+  const { uri, type } = request;
+  const path = uri.replace("/", "");
+
+  response.includeDisposition();
+  readFile(path, response, type);
+};
+
 const handle = (request, response) => {
   if (request.uri === "/") {
     handleHome(request, response);
     return;
   }
-  
-  if (!request.uri.startsWith("resource")) {
-    handleNotFound("", response);
+
+  if (request.uri.endsWith(".pdf")) {
+    handlePdf(request, response);
     return;
   }
 

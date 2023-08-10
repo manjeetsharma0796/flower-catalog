@@ -6,6 +6,7 @@ class Response {
   #contentLength;
   #content;
   #contentType;
+  #contentDisposition;
 
   constructor(socket) {
     this.#socket = socket;
@@ -22,9 +23,19 @@ class Response {
 
   #formatHeader() {
     const date = this.#getCurrentDate();
-    return `date: ${date}\r\ncontent-length: ${
+    const header = `date: ${date}\r\ncontent-length: ${
       this.#contentLength
     }\r\ncontent-type: ${this.#contentType}\r\n`;
+
+    if (this.#contentDisposition) {
+      return header + `${this.#contentDisposition}\r\n`;
+    }
+
+    return header;
+  }
+
+  includeDisposition() {
+    this.#contentDisposition = `Content-disposition: attachment;`;
   }
 
   setStatus(statusCode) {

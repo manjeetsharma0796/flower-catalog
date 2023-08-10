@@ -5,6 +5,7 @@ const extractType = (uri) => {
     "html": "text/html",
     "css": "text/css",
     "": "text/plain",
+    "pdf": "text/pdf",
   };
 
   if (uri === "/") {
@@ -22,7 +23,7 @@ const parseRequest = (rawRequest) => {
   const headerInfo = Object.fromEntries(
     rawHeaderLines.map((rawHeaderLine) => rawHeaderLine.trim().split(": "))
   );
-  
+
   return { method, uri, protocol, headerInfo, type };
 };
 
