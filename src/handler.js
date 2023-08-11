@@ -4,6 +4,8 @@ const getMimeType = (url) => {
   const mime = {
     jpeg: "image/jpeg",
     jpg: "image/jpeg",
+    png: "image/png",
+    ico: "image/ico",
     gif: "image/gif",
     html: "text/html",
     css: "text/css",
