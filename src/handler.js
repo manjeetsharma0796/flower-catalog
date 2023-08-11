@@ -8,7 +8,7 @@ const getMimeType = (url) => {
     html: "text/html",
     css: "text/css",
     txt: "text/plain",
-    pdf: "text/pdf",
+    pdf: "application/pdf",
     js: "text/javascript",
   };
 
@@ -57,6 +57,7 @@ const handleRoute = (request, response) => {
 };
 
 const handle = (request, response) => {
+  console.log(request.url);
   const [extension] = request.url.split(".").slice(-1);
 
   if (request.url === "/") {

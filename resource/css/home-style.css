@@ -26,3 +26,9 @@
 .hide {
   visibility: hidden;
 }
+
+.menu {
+  display: flex;
+  flex-flow: column wrap;
+  row-gap: 2em;
+}
