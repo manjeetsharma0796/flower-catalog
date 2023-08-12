@@ -1,4 +1,6 @@
 const fs = require("fs");
+const { URLSearchParams } = require("url");
+const { getCommentTemplate, getGuestLogPage } = require("./template-creator");
 
 const getMimeType = (url) => {
   const mime = {
@@ -51,17 +53,39 @@ const handleHome = (_, response) => {
   const type = "text/html";
   handleResponse(path, response, type);
 };
-
 const handleRoute = (request, response) => {
   const path = request.url.replace("/", "");
   const type = getMimeType(request.url);
-  console.log(path, "---------------");
+
   handleResponse(path, response, type);
+};
+
+const parseAndstore = (querryString) => {
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+  const querryParams = Object.fromEntries(new URLSearchParams(querryString));
+
+  fs.appendFileSync(
+    "./resource/commentLogs.txt",
+    JSON.stringify({ date, time, ...querryParams }) + "\n"
+  );
 };
 
 const handle = (request, response) => {
   console.log(request.url);
-  const [extension] = request.url.split(".").slice(-1);
+  const [url, querryString] = request.url.split("?");
+
+  if (querryString) {
+    parseAndstore(querryString);
+  }
+
+  const [extension] = url.split(".").slice(-1);
+
+  if (request.url.startsWith("/guest-log.html")) {
+    const commentLogs = getGuestLogPage();
+    response.end(commentLogs);
+    return;
+  }
 
   if (request.url === "/") {
     handleHome(request, response);

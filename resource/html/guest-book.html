@@ -1,34 +1,10 @@
 <html>
-  <head>
-    <title>Guest-Book</title>
-    <link rel="stylesheet" href="/resource/css/guest-book-style.css" />
-  </head>
+ headTemplate
   <body>
-    <header class="heading">
-      <a href="/" class="back-button"><<</a>
-      Guest Book
-    </header>
+   headerTemplate()
     <main>
-      <h3>Leave a comment</h3>
-      <section class="input-area">
-        <label for="name">Name</label>
-        <input type="text" name="name" id="name" />
-      </section>
-
-      <section class="input-area">
-        <label for="comment">Comment</label>
-        <textarea name="comment" id="comment" cols="30" rows="3"></textarea>
-      </section>
-      <input type="submit" value="Submit" />
-
-      <section>
-        <h3 class="comment-section">Comments</h3>
-        <section>
-          <p>12/08/2023, 10:30:55 Bittu beautiful</p>
-          <p>12/08/2023, 10:30:55 Bittu beautiful</p>
-          <p>12/08/2023, 10:30:55 Bittu beautiful</p>
-        </section>
-      </section>
+      formTemplate()
+      getCommentTemplate()
     </main>
   </body>
 </html>
