@@ -37,16 +37,16 @@ const getCommentTemplate = () => {
     .trim()
     .split("\n");
 
-  const commentsWithTag =
-    commentsLog[0] !== ""
-      ? commentsLog
-          .map((comments) => {
-            const { date, time, name, comment } = JSON.parse(comments.trim());
-            return `<p>${date} ${time} ${name} ${comment}</p>`;
-          })
-          .reverse()
-          .join("")
-      : "";
+  commentsWithTag = commentsLog
+    .filter((comments) => {
+      comments !== "";
+    })
+    .map((comments) => {
+      const { date, time, name, comment } = JSON.parse(comments.trim());
+      return `<p>${date} ${time} ${name} ${comment}</p>`;
+    })
+    .reverse()
+    .join("");
 
   return `<section>
   <h3 class="comment-section">Comments</h3>
