@@ -16,15 +16,23 @@
 .catalog {
   width: 90%;
   margin: 0 auto;
-  padding-top: 1em;
+  margin-top: 3em;
   display: flex;
   flex-direction: row;
   align-items: center;
   column-gap: 3em;
 }
 
+.image {
+  border-radius: 1em;
+}
+
 .hide {
   visibility: hidden;
+}
+
+.list {
+  line-height: 2em;
 }
 
 .menu {

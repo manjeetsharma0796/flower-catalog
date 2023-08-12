@@ -5,7 +5,7 @@ const getMimeType = (url) => {
     jpeg: "image/jpeg",
     jpg: "image/jpeg",
     png: "image/png",
-    ico: "image/ico",
+    ico: "image/vnd.microsoft.icon",
     gif: "image/gif",
     html: "text/html",
     css: "text/css",
