@@ -55,6 +55,7 @@ const handleHome = (_, response) => {
 const handleRoute = (request, response) => {
   const path = request.url.replace("/", "");
   const type = getMimeType(request.url);
+  console.log(path, "---------------");
   handleResponse(path, response, type);
 };
 
