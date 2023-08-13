@@ -67,7 +67,7 @@ const handleRedirection = (request, response, data) => {
   const type = getMimeType(location);
 
   response.writeHead(302, {
-    "location": location,
+    "Location": location,
     "Content-Type": type,
     "Content-Length": data.length,
   });
@@ -75,40 +75,46 @@ const handleRedirection = (request, response, data) => {
   response.end(data);
 };
 
-const handleGuestBookPage = (request, response) => {
-  const commentLog = fs.readFileSync("resource/commentLog.txt", "utf-8");
-  const commentsELements = createCommentsElements(commentLog);
-  const guestBookTemplate = fs.readFileSync(
-    "./resource/html/guest-book.html",
-    "utf-8"
-  );
-  const updatedGuestBookPage = guestBookTemplate.replace(
-    "__COMMENTS__",
-    commentsELements
-  );
-
-  if (request.url.includes("?")) {
-    handleRedirection(request, response, updatedGuestBookPage);
-    return;
-  }
-
-  const type = getMimeType(request.url);
-  response.writeHead(200, {
-    "content-length": updatedGuestBookPage.length,
-    "type": type,
-  });
-  response.end(updatedGuestBookPage);
-};
-
 const storeComment = (querryString) => {
   const date = new Date().toLocaleDateString();
   const time = new Date().toLocaleTimeString();
   const querryParams = Object.fromEntries(new URLSearchParams(querryString));
+  const path = "./resource/commentLog.txt";
+  const comment = JSON.stringify({ date, time, ...querryParams }) + "\n";
 
-  fs.appendFileSync(
-    "./resource/commentLog.txt",
-    JSON.stringify({ date, time, ...querryParams }) + "\n"
-  );
+  fs.appendFileSync(path, comment);
+};
+
+const handleGuestBookPage = (request, response) => {
+  const [url, querryString] = request.url.split("?");
+  if (querryString) storeComment(querryString);
+
+  fs.readFile("resource/commentLog.txt", "utf-8", (err, commentLog) => {
+    const guestBookTemplate = fs.readFileSync(
+      "./resource/html/guest-book.html",
+      "utf-8"
+    );
+
+    if (err) {
+      console.log("error, file not exists.Sending page without comments");
+      const blankGuestBookPage = guestBookTemplate.replace("__COMMENTS__", "");
+      handleResponse(request, response, blankGuestBookPage);
+      return;
+    }
+
+    const commentsELements = createCommentsElements(commentLog);
+    const updatedGuestBookPage = guestBookTemplate.replace(
+      "__COMMENTS__",
+      commentsELements
+    );
+
+    if (request.url.includes("?")) {
+      handleRedirection(request, response, updatedGuestBookPage);
+      return;
+    }
+
+    handleResponse(request, response, updatedGuestBookPage);
+  });
 };
 
 const handleRequest = (request, response) => {
@@ -120,20 +126,15 @@ const handleRequest = (request, response) => {
   const [url, querryString] = request.url.split("?");
   const [extension] = url.split(".").slice(-1);
 
-  if (querryString) {
-    storeComment(querryString);
-  }
-
   if (url in requestUrls) {
     requestUrls[url](request, response);
     return;
   }
 
-  if (extension === "pdf") {
+  if (extension === "pdf")
     response.setHeader("Content-Disposition", "attachment");
-  }
 
   handleRoute(request, response);
 };
 
-module.exports = { handle: handleRequest };
+module.exports = { handleRequest };
