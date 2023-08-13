@@ -1,26 +1,23 @@
 const fs = require("fs");
 const { URLSearchParams } = require("url");
-const { getCommentTemplate, getGuestLogPage } = require("./template-creator");
+const { createCommentsElements } = require("./comment-creator.js");
 
 const getMimeType = (url) => {
   const mime = {
-    jpeg: "image/jpeg",
-    jpg: "image/jpeg",
-    png: "image/png",
-    ico: "image/vnd.microsoft.icon",
-    gif: "image/gif",
-    html: "text/html",
-    css: "text/css",
-    txt: "text/plain",
-    pdf: "application/pdf",
-    js: "text/javascript",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "ico": "image/vnd.microsoft.icon",
+    "gif": "image/gif",
+    "html": "text/html",
+    "css": "text/css",
+    "txt": "text/plain",
+    "pdf": "application/pdf",
+    "js": "text/javascript",
+    "/": "text/html",
   };
 
-  if (url === "/") {
-    return "text/html";
-  }
-
-  const [type] = url.match(/(\w+)$/g);
+  const [type] = url.split(".").slice(-1);
   return mime[type];
 };
 
@@ -33,62 +30,102 @@ const handleNotFound = (path, response) => {
   response.end(content);
 };
 
-const handleResponse = (path, response, type) => {
+const handleResponse = (request, response, data) => {
+  const type = getMimeType(request.url);
+
+  response.writeHead(200, {
+    "Content-type": type,
+    "Content-Length": data.length,
+  });
+
+  response.end(data);
+};
+
+const readFile = (path, request, response, onData) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       handleNotFound(path, response);
       return;
     }
 
-    response.writeHead(200, {
-      "Content-type": type,
-      "Content-Length": data.length,
-    });
-    response.end(data);
+    onData(request, response, data);
   });
 };
 
-const handleHome = (_, response) => {
+const handleHome = (request, response) => {
   const path = "resource/html/index.html";
-  const type = "text/html";
-  handleResponse(path, response, type);
+  readFile(path, request, response, handleResponse);
 };
+
 const handleRoute = (request, response) => {
   const path = request.url.replace("/", "");
-  const type = getMimeType(request.url);
-
-  handleResponse(path, response, type);
+  readFile(path, request, response, handleResponse);
 };
 
-const parseAndstore = (querryString) => {
+const handleRedirection = (request, response, data) => {
+  const [location] = request.url.split("?");
+  const type = getMimeType(location);
+
+  response.writeHead(302, {
+    "location": location,
+    "Content-Type": type,
+    "Content-Length": data.length,
+  });
+
+  response.end(data);
+};
+
+const handleGuestBookPage = (request, response) => {
+  const commentLog = fs.readFileSync("resource/commentLog.txt", "utf-8");
+  const commentsELements = createCommentsElements(commentLog);
+  const guestBookTemplate = fs.readFileSync(
+    "./resource/html/guest-book.html",
+    "utf-8"
+  );
+  const updatedGuestBookPage = guestBookTemplate.replace(
+    "__COMMENTS__",
+    commentsELements
+  );
+
+  if (request.url.includes("?")) {
+    handleRedirection(request, response, updatedGuestBookPage);
+    return;
+  }
+
+  const type = getMimeType(request.url);
+  response.writeHead(200, {
+    "content-length": updatedGuestBookPage.length,
+    "type": type,
+  });
+  response.end(updatedGuestBookPage);
+};
+
+const storeComment = (querryString) => {
   const date = new Date().toLocaleDateString();
   const time = new Date().toLocaleTimeString();
   const querryParams = Object.fromEntries(new URLSearchParams(querryString));
 
   fs.appendFileSync(
-    "./resource/commentLogs.txt",
+    "./resource/commentLog.txt",
     JSON.stringify({ date, time, ...querryParams }) + "\n"
   );
 };
 
-const handle = (request, response) => {
+const handleRequest = (request, response) => {
   console.log(request.url);
+  const requestUrls = {
+    "/": handleHome,
+    "/guest-book.html": handleGuestBookPage,
+  };
   const [url, querryString] = request.url.split("?");
-
-  if (querryString) {
-    parseAndstore(querryString);
-  }
-
   const [extension] = url.split(".").slice(-1);
 
-  if (request.url.startsWith("/guest-log.html")) {
-    const commentLogs = getGuestLogPage();
-    response.end(commentLogs);
-    return;
+  if (querryString) {
+    storeComment(querryString);
   }
 
-  if (request.url === "/") {
-    handleHome(request, response);
+  if (url in requestUrls) {
+    requestUrls[url](request, response);
     return;
   }
 
@@ -99,4 +136,4 @@ const handle = (request, response) => {
   handleRoute(request, response);
 };
 
-module.exports = { handle };
+module.exports = { handle: handleRequest };

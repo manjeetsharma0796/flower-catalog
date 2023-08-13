@@ -1,10 +1,44 @@
-<html>
- headTemplate
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Guest Book</title>
+    <link rel="stylesheet" href="/resource/css/guest-book-style.css" />
+  </head>
   <body>
-   headerTemplate()
-    <main>
-      formTemplate()
-      getCommentTemplate()
+    <header class="heading">
+      <a href="/" class="back-button"><<</a>
+      Guest Book
+    </header>
+    <main class="page">
+      <header>
+        <h3>Leave a comment</h3>
+      </header>
+
+      <section>
+        <form action="/guest-book.html">
+          <section class="input-area">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" required />
+          </section>
+
+          <section class="input-area">
+            <label for="comment">Comment</label>
+            <textarea
+              name="comment"
+              id="comment"
+              cols="20"
+              rows="3"
+              required
+            ></textarea>
+          </section>
+
+          <input type="submit" value="Submit" />
+        </form>
+        <section>
+          <h3 class="comment-section">Comments</h3>
+          <section>__COMMENTS__</section>
+        </section>
+      </section>
     </main>
   </body>
 </html>

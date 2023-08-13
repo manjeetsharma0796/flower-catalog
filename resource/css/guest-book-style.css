@@ -3,7 +3,6 @@
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   padding: 0;
   box-sizing: border-box;
-
 }
 
 .heading {
@@ -18,15 +17,49 @@
   font-size: 0.7em;
 }
 
-#comment{
+.page {
+  width: 95%;
+  margin: 0 auto;
+}
+
+section > form {
+  padding: 0.5em 2em;
+}
+
+form > section {
+  margin-bottom: 1em;
+}
+
+#comment {
   resize: none;
 }
 
-.input-area{
-  margin: 1em 1em;
+label {
+  width: 6%;
 }
 
-.comment-section{
+.input-area {
+  display: flex;
+}
+
+.comment-section {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
+  line-height: 2em;
+}
+
+.user-comment {
+  display: flex;
+  flex-flow: row;
+  width: 60%;
+  padding-left: 3em;
+  column-gap: 3em;
+}
+
+.username {
+  width: 20%;
+}
+
+.time-stamp {
+  width: 30%;
 }
