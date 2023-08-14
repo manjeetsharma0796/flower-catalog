@@ -1,8 +1,12 @@
 const fs = require("fs");
 const { URLSearchParams } = require("url");
-const { createCommentsElements } = require("./comment-creator.js");
 
-const getMimeType = (url) => {
+const {
+  createCommentsElements,
+  getGuestTemplate,
+} = require("./comment-creator.js");
+
+const getMimeType = (extension) => {
   const mime = {
     "jpeg": "image/jpeg",
     "jpg": "image/jpeg",
@@ -17,8 +21,7 @@ const getMimeType = (url) => {
     "/": "text/html",
   };
 
-  const [type] = url.split(".").slice(-1);
-  return mime[type];
+  return mime[extension];
 };
 
 const handleNotFound = (path, response) => {
@@ -30,49 +33,70 @@ const handleNotFound = (path, response) => {
   response.end(content);
 };
 
-const handleResponse = (request, response, data) => {
-  const type = getMimeType(request.url);
+const render = (request, response, content) => {
+  const [extension] = request.url.split(".").slice(-1);
+  const type = getMimeType(extension);
+
+  if (extension === "pdf")
+    response.setHeader("Content-Disposition", "attachment");
 
   response.writeHead(200, {
     "Content-type": type,
-    "Content-Length": data.length,
   });
-
-  response.end(data);
+  response.end(content);
 };
 
-const readFile = (path, request, response, onData) => {
-  fs.readFile(path, (err, data) => {
+const readFile = (path, request, response, ondata) => {
+  fs.readFile(path, (err, content) => {
     if (err) {
       handleNotFound(path, response);
       return;
     }
 
-    onData(request, response, data);
+    ondata(request, response, content);
   });
 };
 
 const handleHome = (request, response) => {
   const path = "resource/html/index.html";
-  readFile(path, request, response, handleResponse);
+  readFile(path, request, response, render);
 };
 
-const handleRoute = (request, response) => {
+const handleRequest = (request, response) => {
   const path = request.url.replace("/", "");
-  readFile(path, request, response, handleResponse);
+  readFile(path, request, response, render);
 };
 
-const handleRedirection = (request, response, data) => {
+const handleRedirection = (request, response) => {
   const [location] = request.url.split("?");
-  const type = getMimeType(location);
 
   response.writeHead(302, {
-    "Location": location,
-    "Content-Type": type,
-    "Content-Length": data.length,
+    Location: location,
   });
+  response.end();
+};
 
-  response.end(data);
+const replaceCommentWith = (template, text) =>
+  template.replace("__COMMENTS__", text);
+
+const handleGuestBookPageOnError = (request, response, guestBookTemplate) => {
+  console.log("Error, file not exists. Sending page without comments");
+  const blankGuestBookPage = replaceCommentWith(guestBookTemplate, "");
+  render(request, response, blankGuestBookPage);
+};
+
+const renderUpdatedGuestBookPage = (
+  request,
+  response,
+  guestBookTemplate,
+  commentLog
+) => {
+  const commentsELements = createCommentsElements(commentLog);
+  const updatedGuestBookPage = replaceCommentWith(
+    guestBookTemplate,
+    commentsELements
+  );
+  render(request, response, updatedGuestBookPage);
 };
 
 const storeComment = (querryString) => {
@@ -86,55 +110,44 @@ const storeComment = (querryString) => {
 };
 
 const handleGuestBookPage = (request, response) => {
-  const [url, querryString] = request.url.split("?");
+  const [_, querryString] = request.url.split("?");
+  const guestBookTemplate = getGuestTemplate();
   if (querryString) storeComment(querryString);
 
   fs.readFile("resource/commentLog.txt", "utf-8", (err, commentLog) => {
-    const guestBookTemplate = fs.readFileSync(
-      "./resource/html/guest-book.html",
-      "utf-8"
-    );
-
     if (err) {
-      console.log("error, file not exists.Sending page without comments");
-      const blankGuestBookPage = guestBookTemplate.replace("__COMMENTS__", "");
-      handleResponse(request, response, blankGuestBookPage);
+      handleGuestBookPageOnError(request, response, guestBookTemplate);
       return;
     }
 
-    const commentsELements = createCommentsElements(commentLog);
-    const updatedGuestBookPage = guestBookTemplate.replace(
-      "__COMMENTS__",
-      commentsELements
+    if (querryString) {
+      handleRedirection(request, response);
+      return;
+    }
+
+    renderUpdatedGuestBookPage(
+      request,
+      response,
+      guestBookTemplate,
+      commentLog
     );
-
-    if (request.url.includes("?")) {
-      handleRedirection(request, response, updatedGuestBookPage);
-      return;
-    }
-
-    handleResponse(request, response, updatedGuestBookPage);
   });
 };
 
-const handleRequest = (request, response) => {
+const handleRoute = (request, response) => {
   console.log(request.url);
   const requestUrls = {
     "/": handleHome,
     "/guest-book.html": handleGuestBookPage,
   };
-  const [url, querryString] = request.url.split("?");
-  const [extension] = url.split(".").slice(-1);
+  const [url] = request.url.split("?");
 
   if (url in requestUrls) {
     requestUrls[url](request, response);
     return;
   }
 
-  if (extension === "pdf")
-    response.setHeader("Content-Disposition", "attachment");
-
-  handleRoute(request, response);
+  handleRequest(request, response);
 };
 
-module.exports = { handleRequest };
+module.exports = { handleRoute };
