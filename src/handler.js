@@ -62,16 +62,14 @@ const handleHome = (request, response) => {
   readFile(path, request, response, render);
 };
 
-const handleRequest = (request, response) => {
+const handleFileRequest = (request, response) => {
   const path = request.url.replace("/", "");
   readFile(path, request, response, render);
 };
 
-const handleRedirection = (request, response) => {
-  const [location] = request.url.split("?");
-
+const handleRedirection = (response, location) => {
   response.writeHead(302, {
-    Location: location,
+    location,
   });
   response.end();
 };
@@ -85,7 +83,7 @@ const handleGuestBookPageOnError = (request, response, guestBookTemplate) => {
   render(request, response, blankGuestBookPage);
 };
 
-const renderUpdatedGuestBookPage = (
+const renderGuestBookPage = (
   request,
   response,
   guestBookTemplate,
@@ -110,22 +108,34 @@ const storeComment = (querryString) => {
 };
 
 const handleGuestBookPage = (request, response) => {
-  const [_, querryString] = request.url.split("?");
-  const guestBookTemplate = getGuestTemplate();
-  if (querryString) storeComment(querryString);
+  if (request.method === "POST") {
+    request.setEncoding("utf-8");
+    let commentData = "";
 
+    const onData = (chunk) => {
+      commentData += chunk;
+    };
+
+    const onEnd = () => {
+      storeComment(commentData);
+      const location = "/guest-book.html";
+      handleRedirection(response, location);
+    };
+
+    request.on("data", onData);
+
+    request.on("end", onEnd);
+    return;
+  }
+
+  const guestBookTemplate = getGuestTemplate();
   fs.readFile("resource/commentLog.txt", "utf-8", (err, commentLog) => {
     if (err) {
       handleGuestBookPageOnError(request, response, guestBookTemplate);
       return;
     }
 
-    if (querryString) {
-      handleRedirection(request, response);
-      return;
-    }
-
-    renderUpdatedGuestBookPage(
+    renderGuestBookPage(
       request,
       response,
       guestBookTemplate,
@@ -147,7 +157,7 @@ const handleRoute = (request, response) => {
     return;
   }
 
-  handleRequest(request, response);
+  handleFileRequest(request, response);
 };
 
 module.exports = { handleRoute };
