@@ -33,5 +33,30 @@ const contentTypes = {
 5. response to client and over
 
 ```js
+const getMimeType = (extension) => {
+  const mime = {
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "ico": "image/vnd.microsoft.icon",
+    "gif": "image/gif",
+    "html": "text/html",
+    "css": "text/css",
+    "txt": "text/plain",
+    "pdf": "application/pdf",
+    "js": "text/javascript",
+    "/": "text/html",
+  };
 
+  return mime[extension];
+};
+
+const getContentDisposition = (extension) => {
+  const disposition = {
+    jpeg: "inline",
+    pdf: "attachment",
+  };
+
+  return contentDisposition[extension];
+};
 ```

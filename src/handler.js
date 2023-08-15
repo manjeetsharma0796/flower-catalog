@@ -135,12 +135,7 @@ const handleGuestBookPage = (request, response) => {
       return;
     }
 
-    renderGuestBookPage(
-      request,
-      response,
-      guestBookTemplate,
-      commentLog
-    );
+    renderGuestBookPage(request, response, guestBookTemplate, commentLog);
   });
 };
 
@@ -149,6 +144,7 @@ const handleRoute = (request, response) => {
   const requestUrls = {
     "/": handleHome,
     "/guest-book.html": handleGuestBookPage,
+    "/guest-book.html/add-comment": handleGuestBookPage,
   };
   const [url] = request.url.split("?");
 
