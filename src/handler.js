@@ -139,17 +139,31 @@ const handleGuestBookPage = (request, response) => {
   });
 };
 
+const handleMethodNotAllowed = (req, res) => {
+  res.writeHead(405, "Method Not Allowed");
+  res.end();
+};
+
 const handleRoute = (request, response) => {
   console.log(request.url);
-  const requestUrls = {
-    "/": handleHome,
-    "/guest-book.html": handleGuestBookPage,
-    "/guest-book.html/add-comment": handleGuestBookPage,
+  const routes = {
+    GET: {
+      "/": handleHome,
+      "/guest-book.html": handleGuestBookPage,
+    },
+    POST: {
+      "/guest-book.html/add-comment": handleGuestBookPage,
+    },
   };
-  const [url] = request.url.split("?");
+  const { url, method } = request;
 
-  if (url in requestUrls) {
-    requestUrls[url](request, response);
+  if (url in routes[method]) {
+    routes[method][url](request, response);
+    return;
+  }
+
+  if (method === "POST") {
+    handleMethodNotAllowed(request, response);
     return;
   }
 

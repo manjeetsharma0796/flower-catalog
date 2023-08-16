@@ -13,3 +13,23 @@ Also when server want to redirect the page to specific form completion, the serv
 > Why the url of submit and page should not be different?
 
 As of now i am just showing one page, with one form, and updating the comment section
+
+---
+
+Requirement
+
+1. Implement POST method on form [*]
+2. If other page tries the POST method, handle it as method not allowed[]
+
+First segregate by method,
+Second segreate by route
+
+{
+GET: {
+      '/': handleHome,
+      '/guest-book.html': handleGuestBookPage
+    },
+POST: {
+      '/guest-book.html/add-comment': handleGuestBookPage
+      }
+}
