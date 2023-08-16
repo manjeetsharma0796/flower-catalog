@@ -1,11 +1,6 @@
 const fs = require("fs");
 const { URLSearchParams } = require("url");
 
-const {
-  createCommentsElements,
-  getGuestTemplate,
-} = require("./comment-creator.js");
-
 const getMimeType = (extension) => {
   const mime = {
     "jpeg": "image/jpeg",
@@ -74,74 +69,59 @@ const handleRedirection = (response, location) => {
   response.end();
 };
 
-const replaceCommentWith = (template, text) =>
-  template.replace("__COMMENTS__", text);
-
-const handleGuestBookPageOnError = (request, response, guestBookTemplate) => {
-  console.log("Error, file not exists. Sending page without comments");
-  const blankGuestBookPage = replaceCommentWith(guestBookTemplate, "");
-  render(request, response, blankGuestBookPage);
-};
-
-const renderGuestBookPage = (
-  request,
-  response,
-  guestBookTemplate,
-  commentLog
-) => {
-  const commentsELements = createCommentsElements(commentLog);
-  const updatedGuestBookPage = replaceCommentWith(
-    guestBookTemplate,
-    commentsELements
-  );
-  render(request, response, updatedGuestBookPage);
-};
-
 const storeComment = (querryString) => {
   const date = new Date().toLocaleDateString();
   const time = new Date().toLocaleTimeString();
   const querryParams = Object.fromEntries(new URLSearchParams(querryString));
-  const path = "./resource/commentLog.txt";
-  const comment = JSON.stringify({ date, time, ...querryParams }) + "\n";
+  const path = "./resource/commentsLog.json";
+  const comment = { date, time, ...querryParams };
 
-  fs.appendFileSync(path, comment);
-};
-
-const handleGuestBookPage = (request, response) => {
-  if (request.method === "POST") {
-    request.setEncoding("utf-8");
-    let commentData = "";
-
-    const onData = (chunk) => {
-      commentData += chunk;
-    };
-
-    const onEnd = () => {
-      storeComment(commentData);
-      const location = "/guest-book.html";
-      handleRedirection(response, location);
-    };
-
-    request.on("data", onData);
-
-    request.on("end", onEnd);
-    return;
-  }
-
-  const guestBookTemplate = getGuestTemplate();
-  fs.readFile("resource/commentLog.txt", "utf-8", (err, commentLog) => {
+  fs.readFile(path, "utf-8", (err, oldComments) => {
     if (err) {
-      handleGuestBookPageOnError(request, response, guestBookTemplate);
+      console.error("storeComment: path not exist, creating new one");
+      fs.writeFile(path, JSON.stringify([comment]), () => {});
       return;
     }
 
-    renderGuestBookPage(request, response, guestBookTemplate, commentLog);
+    const commentsLog = JSON.parse(oldComments);
+    commentsLog.push(comment);
+    fs.writeFile(path, JSON.stringify(commentsLog), () => {});
   });
 };
 
-const handleMethodNotAllowed = (req, res) => {
+const handleNewComment = (request, response) => {
+  request.setEncoding("utf-8");
+  let commentData = "";
+
+  const onData = (chunk) => {
+    commentData += chunk;
+  };
+
+  const onEnd = () => {
+    storeComment(commentData);
+    const location = "/resource/html/guest-book.html";
+    handleRedirection(response, location);
+  };
+
+  request.on("data", onData);
+  request.on("end", onEnd);
+  return;
+};
+
+const handleMethodNotAllowed = (_, res) => {
   res.writeHead(405, "Method Not Allowed");
   res.end();
+};
+
+const sendCommentLog = (_, response) => {
+  fs.readFile("./resource/commentsLog.json", "utf-8", (err, commentsLog) => {
+    if (err) {
+      console.error("sendCommentLog: error in reading");
+      return;
+    }
+    response.setHeader("content-type", "application/json");
+    response.end(commentsLog);
+  });
 };
 
 const handleRoute = (request, response) => {
@@ -149,10 +129,10 @@ const handleRoute = (request, response) => {
   const routes = {
     GET: {
       "/": handleHome,
-      "/guest-book.html": handleGuestBookPage,
+      "/guest-book/comments": sendCommentLog,
     },
     POST: {
-      "/guest-book.html/add-comment": handleGuestBookPage,
+      "/guest-book/add-comment": handleNewComment,
     },
   };
   const { url, method } = request;

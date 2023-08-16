@@ -3,6 +3,7 @@
   <head>
     <title>Guest Book</title>
     <link rel="stylesheet" href="/resource/css/guest-book-style.css" />
+    <script src="/resource/script/guest-book.js"></script>
   </head>
   <body>
     <header class="heading">
@@ -15,7 +16,7 @@
       </header>
 
       <section>
-        <form action="/guest-book.html/add-comment" method="post">
+        <form action="/guest-book/add-comment" method="post">
           <section class="input-area">
             <label for="name">Name</label>
             <input type="text" name="name" id="name" required />
@@ -36,7 +37,7 @@
         </form>
         <section>
           <h3 class="comment-section">Comments</h3>
-          <section>__COMMENTS__</section>
+          <section id="comments-section"></section>
         </section>
       </section>
     </main>

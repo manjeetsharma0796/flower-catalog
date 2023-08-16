@@ -48,7 +48,7 @@ label {
   line-height: 2em;
 }
 
-.user-comment {
+.user-comments {
   display: flex;
   flex-flow: row;
   width: 60%;
@@ -56,10 +56,6 @@ label {
   column-gap: 3em;
 }
 
-.username {
-  width: 20%;
-}
-
-.time-stamp {
+section > p {
   width: 30%;
 }
