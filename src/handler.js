@@ -1,5 +1,4 @@
 const fs = require("fs");
-const { URLSearchParams } = require("url");
 
 const getMimeType = (extension) => {
   const mime = {
@@ -62,55 +61,20 @@ const handleFileRequest = (request, response) => {
   readFile(path, request, response, render);
 };
 
-const handleRedirection = (response, location) => {
-  response.writeHead(302, {
-    location,
-  });
-  response.end();
-};
-
-const storeComment = (querryString) => {
-  const date = new Date().toLocaleDateString();
-  const time = new Date().toLocaleTimeString();
-  const querryParams = Object.fromEntries(new URLSearchParams(querryString));
+const storeComment = (commentParams) => {
   const path = "./resource/commentsLog.json";
-  const comment = { date, time, ...querryParams };
 
   fs.readFile(path, "utf-8", (err, oldComments) => {
     if (err) {
       console.error("storeComment: path not exist, creating new one");
-      fs.writeFile(path, JSON.stringify([comment]), () => {});
+      fs.writeFile(path, JSON.stringify([commentParams]), () => {});
       return;
     }
 
     const commentsLog = JSON.parse(oldComments);
-    commentsLog.push(comment);
+    commentsLog.push(commentParams);
     fs.writeFile(path, JSON.stringify(commentsLog), () => {});
   });
-};
-
-const handleNewComment = (request, response) => {
-  request.setEncoding("utf-8");
-  let commentData = "";
-
-  const onData = (chunk) => {
-    commentData += chunk;
-  };
-
-  const onEnd = () => {
-    storeComment(commentData);
-    const location = "/resource/html/guest-book.html";
-    handleRedirection(response, location);
-  };
-
-  request.on("data", onData);
-  request.on("end", onEnd);
-  return;
-};
-
-const handleMethodNotAllowed = (_, res) => {
-  res.writeHead(405, "Method Not Allowed");
-  res.end();
 };
 
 const sendCommentLog = (_, response) => {
@@ -124,8 +88,42 @@ const sendCommentLog = (_, response) => {
   });
 };
 
+const attachTimeStamp = (commentJSON) => {
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+  const commentParams = JSON.parse(commentJSON);
+  return { date, time, ...commentParams };
+};
+const handleNewComment = (request, response) => {
+  request.setEncoding("utf-8");
+  let commentJSON = "";
+
+  const onData = (chunk) => {
+    commentJSON += chunk;
+  };
+
+  const onEnd = () => {
+    const commentParams = attachTimeStamp(commentJSON);
+    storeComment(commentParams);
+    response.writeHead(200, {
+      "content-type": "application/json",
+    });
+    response.end(JSON.stringify(commentParams));
+  };
+
+  request.on("data", onData);
+  request.on("end", onEnd);
+  return;
+};
+
+const handleMethodNotAllowed = (_, res) => {
+  res.writeHead(405, "Method Not Allowed");
+  res.end();
+};
+
 const handleRoute = (request, response) => {
   console.log(request.url);
+  const { url, method } = request;
   const routes = {
     GET: {
       "/": handleHome,
@@ -135,7 +133,6 @@ const handleRoute = (request, response) => {
       "/guest-book/add-comment": handleNewComment,
     },
   };
-  const { url, method } = request;
 
   if (url in routes[method]) {
     routes[method][url](request, response);
