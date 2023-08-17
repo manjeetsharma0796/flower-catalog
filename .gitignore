@@ -1,4 +1,4 @@
 node_modules
 .DS_Store
 ./DRAFT.md
-commentLog.txt
+commentsLog.json
