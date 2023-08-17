@@ -33,7 +33,7 @@ const parseAndAppendComments = (commentsLog) => {
   });
 };
 
-const prependToCommentContainer = (commentParams) => {
+const prependToCommentsContainer = (commentParams) => {
   const commentsContainer = document.querySelector("#comments-section");
 
   commentContainerElement = generateCommentSection(commentParams);
@@ -61,7 +61,7 @@ const postCommentDetail = (commentDetail) => {
     },
   })
     .then((res) => res.json())
-    .then(prependToCommentContainer);
+    .then(prependToCommentsContainer);
 };
 
 const setupCommentForm = () => {
@@ -71,6 +71,7 @@ const setupCommentForm = () => {
     event.preventDefault();
     const commentDetail = createCommentRequest();
     postCommentDetail(commentDetail);
+    formElement.reset();
   });
 };
 
