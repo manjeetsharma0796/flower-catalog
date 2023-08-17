@@ -62,7 +62,7 @@ const handleFileRequest = (request, response) => {
 };
 
 const storeComment = (commentParams) => {
-  const path = "./resource/commentsLog.json";
+  const path = "./resource/commentLog.json";
 
   fs.readFile(path, "utf-8", (err, oldComments) => {
     if (err) {
@@ -71,20 +71,20 @@ const storeComment = (commentParams) => {
       return;
     }
 
-    const commentsLog = JSON.parse(oldComments);
-    commentsLog.push(commentParams);
-    fs.writeFile(path, JSON.stringify(commentsLog), () => {});
+    const commentLog = JSON.parse(oldComments);
+    commentLog.push(commentParams);
+    fs.writeFile(path, JSON.stringify(commentLog), () => {});
   });
 };
 
 const sendCommentLog = (_, response) => {
-  fs.readFile("./resource/commentsLog.json", "utf-8", (err, commentsLog) => {
+  fs.readFile("./resource/commentLog.json", "utf-8", (err, commentLog) => {
     if (err) {
       console.error("sendCommentLog: error in reading");
       return;
     }
     response.setHeader("content-type", "application/json");
-    response.end(commentsLog);
+    response.end(commentLog);
   });
 };
 

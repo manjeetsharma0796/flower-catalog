@@ -23,11 +23,11 @@ const generateCommentSection = (commentParams) => {
   return commentContainer;
 };
 
-const parseAndAppendComments = (commentsLog) => {
+const parseAndAppendComments = (commentLog) => {
   const commentsContainer = document.querySelector("#comments-section");
   commentsContainer.replaceChildren("");
 
-  commentsLog.reverse().forEach((commentParams) => {
+  commentLog.reverse().forEach((commentParams) => {
     const commentContainerElement = generateCommentSection(commentParams);
     commentsContainer.appendChild(commentContainerElement);
   });
@@ -36,7 +36,7 @@ const parseAndAppendComments = (commentsLog) => {
 const prependToCommentsContainer = (commentParams) => {
   const commentsContainer = document.querySelector("#comments-section");
 
-  commentContainerElement = generateCommentSection(commentParams);
+  const commentContainerElement = generateCommentSection(commentParams);
   commentsContainer.prepend(commentContainerElement);
 };
 
@@ -52,10 +52,10 @@ const createCommentRequest = () => {
   return { name, comment };
 };
 
-const postCommentDetail = (commentDetail) => {
+const postCommentParams = (commentParams) => {
   fetch("/guest-book/add-comment", {
     method: "POST",
-    body: JSON.stringify(commentDetail),
+    body: JSON.stringify(commentParams),
     headers: {
       "content-type": "application/json",
     },
@@ -69,8 +69,8 @@ const setupCommentForm = () => {
 
   formElement.addEventListener("submit", (event) => {
     event.preventDefault();
-    const commentDetail = createCommentRequest();
-    postCommentDetail(commentDetail);
+    const commentParams = createCommentRequest();
+    postCommentParams(commentParams);
     formElement.reset();
   });
 };
