@@ -8,11 +8,11 @@
 .heading {
   font-size: 1em;
   color: rgb(237, 167, 68);
-  text-align: center;
   padding: 0.5em;
   border-bottom: 1px solid black;
   display: flex;
   justify-content: center;
+  column-gap: 2em;
 }
 
 .back-button {
@@ -60,4 +60,16 @@ label {
 
 section > p {
   width: 30%;
+}
+
+section#page-head {
+  justify-content: center;
+  align-items: center;
+  flex: 0.8;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+section#profile {
+  flex: 0.05;
 }

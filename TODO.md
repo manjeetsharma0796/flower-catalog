@@ -33,3 +33,7 @@ POST: {
       '/guest-book.html/add-comment': handleGuestBookPage
       }
 }
+
+---------------
+on getting loginInfo,
+i want to create button accordingly

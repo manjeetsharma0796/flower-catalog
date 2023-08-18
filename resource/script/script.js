@@ -11,14 +11,13 @@ const createUserElement = (username) => {
   return userElement;
 };
 
-const createLogButton = (username) => {
+const createLogButton = (isUserPresent) => {
   const logButtonElement = document.createElement("a");
   logButtonElement.id = "log-button";
-
   logButtonElement.href = "/login";
   logButtonElement.innerText = "Login";
 
-  if (username) {
+  if (isUserPresent) {
     logButtonElement.href = "/logout";
     logButtonElement.innerText = "Logout";
   }
@@ -26,20 +25,26 @@ const createLogButton = (username) => {
   return logButtonElement;
 };
 
-const renderProfile = () => {
-  const profileSection = document.querySelector("#profile");
-  const { username } = Object.fromEntries([document.cookie.split("=")]);
-  console.log(username);
-  if (username) {
-    const userElement = createUserElement(username);
-    profileSection.append(userElement);
+const renderProfile = (loginInfo) => {
+  const profileContainer = document.querySelector("#profile");
+  const isUserPresent = "username" in loginInfo;
+  if (isUserPresent) {
+    const usernameElement = createUserElement(loginInfo.username);
+    profileContainer.appendChild(usernameElement);
   }
-  const logButtonElement = createLogButton(username);
-  profileSection.append(logButtonElement);
+
+  const logButton = createLogButton(isUserPresent);
+  profileContainer.appendChild(logButton);
+};
+
+const fetchProfileState = () => {
+  fetch("/profile-state", { method: "POST" })
+    .then((res) => res.json())
+    .then(renderProfile);
 };
 
 window.onload = () => {
   const waterJug = document.querySelector("#water-jug");
   waterJug.onclick = () => hideWaterJug(waterJug);
-  renderProfile();
+  fetchProfileState();
 };

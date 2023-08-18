@@ -150,6 +150,11 @@ const serveGuestBook = (request, response) => {
   readFile(path, request, response, render);
 };
 
+const handleProfileState = (request, response) => {
+  console.log(request.cookies, ">>>>>>>>>");
+  response.end(JSON.stringify(request.cookies));
+};
+
 module.exports = {
   handleFileRequest,
   handleNotFound,
@@ -162,4 +167,5 @@ module.exports = {
   serveGuestBook,
   serveLogin,
   serveLogout,
+  handleProfileState,
 };

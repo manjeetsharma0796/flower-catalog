@@ -9,15 +9,14 @@ const {
   login,
   handleMethodNotAllowed,
   handleFileRequest,
+  handleProfileState,
 } = require("./handlers");
 
 const handleRoute = (request, response) => {
   console.log(request.url);
-  request.cookies = parseCookie(request.headers.cookie);
-  console.log(request.cookies);
+  request.cookies = parseCookie(request.headers.cookie) || {};
 
   const { url, method } = request;
-
   const routes = {
     GET: {
       "/": handleHome,
@@ -29,6 +28,7 @@ const handleRoute = (request, response) => {
     POST: {
       "/guest-book/comments": handleNewComment,
       "/login": login,
+      "/profile-state": handleProfileState,
     },
   };
 

@@ -79,6 +79,12 @@ const setupCommentForm = () => {
   });
 };
 
+const createUserElement = (username) => {
+  const userElement = document.createElement("p");
+  userElement.innerText = username;
+  return userElement;
+};
+
 const createLogoutButton = () => {
   const logButtonElement = document.createElement("a");
   logButtonElement.id = "log-button";
@@ -88,14 +94,26 @@ const createLogoutButton = () => {
   return logButtonElement;
 };
 
-const renderProfile = () => {
-  const profileSection = document.querySelector("#profile");
-  const logButtonElement = createLogoutButton();
-  profileSection.append(logButtonElement);
+const renderProfile = (loginInfo) => {
+  const profileContainer = document.querySelector("#profile");
+  const isUserPresent = "username" in loginInfo;
+  if (isUserPresent) {
+    const usernameElement = createUserElement(loginInfo.username);
+    profileContainer.appendChild(usernameElement);
+  }
+
+  const logoutButton = createLogoutButton();
+  profileContainer.appendChild(logoutButton);
+};
+
+const fetchProfileState = () => {
+  fetch("/profile-state", { method: "POST" })
+    .then((res) => res.json())
+    .then(renderProfile);
 };
 
 window.onload = () => {
   fetchAndRenderComments();
   setupCommentForm();
-  renderProfile();
+  fetchProfileState();
 };
