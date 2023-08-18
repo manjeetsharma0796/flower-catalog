@@ -6,11 +6,13 @@
 }
 
 .heading {
-  font-size: 2em;
+  font-size: 1em;
   color: rgb(237, 167, 68);
   text-align: center;
   padding: 0.5em;
   border-bottom: 1px solid black;
+  display: flex;
+  justify-content: center;
 }
 
 .back-button {

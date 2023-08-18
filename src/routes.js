@@ -2,6 +2,7 @@ const { parseCookie } = require("./cookie-parser");
 const {
   handleHome,
   serveLogin,
+  serveLogout,
   serveGuestBook,
   sendCommentLog,
   handleNewComment,
@@ -21,6 +22,7 @@ const handleRoute = (request, response) => {
     GET: {
       "/": handleHome,
       "/login": serveLogin,
+      "/logout": serveLogout,
       "/guest-book": serveGuestBook,
       "/guest-book/comments": sendCommentLog,
     },

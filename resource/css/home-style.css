@@ -8,9 +8,10 @@
 
 .page-head {
   color: rgb(237, 167, 68);
-  text-align: center;
   padding: 1em;
   border-bottom: 1px solid black;
+  display: flex;
+  justify-content: center;
 }
 
 .catalog {

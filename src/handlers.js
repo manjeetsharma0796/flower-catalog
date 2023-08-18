@@ -3,6 +3,7 @@ const { getMimeType } = require("./utils.js");
 const {
   redirectToGuestBook,
   redirectToLogin,
+  redirectToHomePage,
 } = require("./redirect-handlers.js");
 
 const attachTimeStampAndUsername = (commentJSON, username) => {
@@ -88,7 +89,7 @@ const sendCommentLog = (_, response) => {
   });
 };
 
-const responseAfterStore = (request, response, commentParams) => {
+const responseAfterStore = (_, response, commentParams) => {
   response.writeHead(200, {
     "content-type": "application/json",
   });
@@ -104,7 +105,7 @@ const handleNewComment = (request, response) => {
   });
 
   request.on("end", () => {
-    if (!request.cookies.username) {
+    if (!request.cookies) {
       redirectToLogin(request, response);
       return;
     }
@@ -114,7 +115,6 @@ const handleNewComment = (request, response) => {
     storeComment(commentParams);
     responseAfterStore(request, response, commentParams);
   });
-  //refactoring is required
 };
 
 const login = (request, response) => {
@@ -133,6 +133,11 @@ const login = (request, response) => {
 const serveLogin = (request, response) => {
   const path = "resource/html/login.html";
   readFile(path, request, response, render);
+};
+
+const serveLogout = (request, response) => {
+  response.setHeader("Set-Cookie", "username=; max-age=0");
+  redirectToHomePage(request, response);
 };
 
 const serveGuestBook = (request, response) => {
@@ -156,4 +161,5 @@ module.exports = {
   login,
   serveGuestBook,
   serveLogin,
+  serveLogout,
 };

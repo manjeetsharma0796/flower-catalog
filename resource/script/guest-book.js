@@ -79,7 +79,23 @@ const setupCommentForm = () => {
   });
 };
 
+const createLogoutButton = () => {
+  const logButtonElement = document.createElement("a");
+  logButtonElement.id = "log-button";
+  logButtonElement.href = "/logout";
+  logButtonElement.innerText = "Logout";
+
+  return logButtonElement;
+};
+
+const renderProfile = () => {
+  const profileSection = document.querySelector("#profile");
+  const logButtonElement = createLogoutButton();
+  profileSection.append(logButtonElement);
+};
+
 window.onload = () => {
   fetchAndRenderComments();
   setupCommentForm();
+  renderProfile();
 };
