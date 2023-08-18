@@ -13,6 +13,7 @@ const getMimeType = (extension) => {
     "pdf": "application/pdf",
     "js": "text/javascript",
     "/": "text/html",
+    "/login": "text/html",
   };
 
   return mime[extension];
@@ -94,6 +95,7 @@ const attachTimeStamp = (commentJSON) => {
   const commentParams = JSON.parse(commentJSON);
   return { date, time, ...commentParams };
 };
+
 const handleNewComment = (request, response) => {
   request.setEncoding("utf-8");
   let commentJSON = "";
@@ -121,16 +123,45 @@ const handleMethodNotAllowed = (_, res) => {
   res.end();
 };
 
+const redirectToHome = (request, response) => {
+  response.writeHead(302, { location: "/" });
+  response.end();
+};
+
+const login = (request, response) => {
+  let requestBody = "";
+  request.on("data", (chunk) => (requestBody += chunk));
+
+  request.on("end", () => {
+    console.log(requestBody);
+    const { username } = Object.fromEntries(new URLSearchParams(requestBody));
+    if (username) response.setHeader("Set-Cookie", `username=${username}`);
+
+    redirectToHome(request, response);
+    return;
+  });
+};
+
+const serveLogin = (request, response) => {
+  const path = "resource/html/login.html";
+  readFile(path, request, response, render);
+};
+
 const handleRoute = (request, response) => {
   console.log(request.url);
+  console.log(request.headers.cookie);
+
   const { url, method } = request;
+
   const routes = {
     GET: {
       "/": handleHome,
+      "/login": serveLogin,
       "/guest-book/comments": sendCommentLog,
     },
     POST: {
       "/guest-book/add-comment": handleNewComment,
+      "/login": login,
     },
   };
 

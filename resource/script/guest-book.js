@@ -52,7 +52,7 @@ const createCommentRequest = () => {
   return { name, comment };
 };
 
-const postCommentParams = (commentParams) => {
+const submitComment = (commentParams) => {
   fetch("/guest-book/add-comment", {
     method: "POST",
     body: JSON.stringify(commentParams),
@@ -70,7 +70,7 @@ const setupCommentForm = () => {
   formElement.addEventListener("submit", (event) => {
     event.preventDefault();
     const commentParams = createCommentRequest();
-    postCommentParams(commentParams);
+    submitComment(commentParams);
     formElement.reset();
   });
 };
