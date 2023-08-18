@@ -1,23 +1,15 @@
 const fs = require("fs");
+const { getMimeType } = require("./utils.js");
+const {
+  redirectToGuestBook,
+  redirectToLogin,
+} = require("./redirect-handlers.js");
 
-const getMimeType = (extension) => {
-  const mime = {
-    "jpeg": "image/jpeg",
-    "jpg": "image/jpeg",
-    "png": "image/png",
-    "ico": "image/vnd.microsoft.icon",
-    "gif": "image/gif",
-    "html": "text/html",
-    "css": "text/css",
-    "txt": "text/plain",
-    "pdf": "application/pdf",
-    "js": "text/javascript",
-    "/": "text/html",
-    "/login": "text/html",
-    "/guest-book": "text/html",
-  };
-
-  return mime[extension];
+const attachTimeStampAndUsername = (commentJSON, username) => {
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+  const commentParams = JSON.parse(commentJSON);
+  return { date, time, username, ...commentParams };
 };
 
 const handleNotFound = (path, response) => {
@@ -27,6 +19,11 @@ const handleNotFound = (path, response) => {
   response.statusCode = 404;
   response.setHeader("Content-Type", type);
   response.end(content);
+};
+
+const handleMethodNotAllowed = (_, res) => {
+  res.writeHead(405, "Method Not Allowed");
+  res.end();
 };
 
 const render = (request, response, content) => {
@@ -51,26 +48,6 @@ const readFile = (path, request, response, onData) => {
 
     onData(request, response, content);
   });
-};
-
-const handleMethodNotAllowed = (_, res) => {
-  res.writeHead(405, "Method Not Allowed");
-  res.end();
-};
-
-const redirectToHome = (request, response) => {
-  response.writeHead(302, { location: "/" });
-  response.end();
-};
-
-const redirectToGuestBook = (request, response) => {
-  response.writeHead(302, { location: "/guest-book" });
-  response.end();
-};
-
-const redirectToLogin = (request, response) => {
-  response.writeHead(302, { location: "/login" });
-  response.end();
 };
 
 const handleHome = (request, response) => {
@@ -99,33 +76,34 @@ const storeComment = (commentParams) => {
   });
 };
 
-const sendCommentLog = (request, response) => {
+const sendCommentLog = (_, response) => {
   fs.readFile("./resource/commentLog.json", "utf-8", (err, commentLog) => {
     if (err) {
       console.error("sendCommentLog: error in reading");
       return;
     }
+
     response.setHeader("content-type", "application/json");
     response.end(commentLog);
   });
 };
 
-const attachTimeStampAndUsername = (commentJSON, username) => {
-  const date = new Date().toLocaleDateString();
-  const time = new Date().toLocaleTimeString();
-  const commentParams = JSON.parse(commentJSON);
-  return { date, time, username, ...commentParams };
+const responseAfterStore = (request, response, commentParams) => {
+  response.writeHead(200, {
+    "content-type": "application/json",
+  });
+  response.end(JSON.stringify(commentParams));
 };
 
 const handleNewComment = (request, response) => {
   request.setEncoding("utf-8");
   let commentJSON = "";
 
-  const onData = (chunk) => {
+  request.on("data", (chunk) => {
     commentJSON += chunk;
-  };
+  });
 
-  const onEnd = () => {
+  request.on("end", () => {
     if (!request.cookies) {
       redirectToLogin(request, response);
       return;
@@ -134,15 +112,9 @@ const handleNewComment = (request, response) => {
     const { username } = request.cookies;
     const commentParams = attachTimeStampAndUsername(commentJSON, username);
     storeComment(commentParams);
-    response.writeHead(200, {
-      "content-type": "application/json",
-    });
-    response.end(JSON.stringify(commentParams));
-  };
-
-  request.on("data", onData);
-  request.on("end", onEnd);
-  return;
+    responseAfterStore(request, response, commentParams);
+  });
+  //refactoring is required
 };
 
 const login = (request, response) => {
@@ -150,11 +122,10 @@ const login = (request, response) => {
   request.on("data", (chunk) => (requestBody += chunk));
 
   request.on("end", () => {
-    console.log(requestBody);
     const { username } = Object.fromEntries(new URLSearchParams(requestBody));
     if (username) response.setHeader("Set-Cookie", `username=${username}`);
 
-    redirectToHome(request, response);
+    redirectToGuestBook(request, response);
     return;
   });
 };
@@ -174,46 +145,15 @@ const serveGuestBook = (request, response) => {
   readFile(path, request, response, render);
 };
 
-const parseCookie = (rawCookies) => {
-  if (!rawCookies) {
-    return;
-  }
-  return Object.fromEntries(
-    rawCookies.split("; ").map((rawCookie) => rawCookie.split("="))
-  );
+module.exports = {
+  handleFileRequest,
+  handleNotFound,
+  handleMethodNotAllowed,
+  handleHome,
+  storeComment,
+  sendCommentLog,
+  handleNewComment,
+  login,
+  serveGuestBook,
+  serveLogin,
 };
-
-const handleRoute = (request, response) => {
-  console.log(request.url);
-  request.cookies = parseCookie(request.headers.cookie);
-  console.log(request.cookies);
-
-  const { url, method } = request;
-
-  const routes = {
-    GET: {
-      "/": handleHome,
-      "/login": serveLogin,
-      "/guest-book": serveGuestBook,
-      "/guest-book/comments": sendCommentLog,
-    },
-    POST: {
-      "/guest-book/comments": handleNewComment,
-      "/login": login,
-    },
-  };
-
-  if (url in routes[method]) {
-    routes[method][url](request, response);
-    return;
-  }
-
-  if (method === "POST") {
-    handleMethodNotAllowed(request, response);
-    return;
-  }
-
-  handleFileRequest(request, response);
-};
-
-module.exports = { handleRoute };

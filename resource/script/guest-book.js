@@ -60,6 +60,11 @@ const submitComment = (commentParams) => {
     },
   })
     .then((res) => res.json())
+    .catch((error) => {
+      if (error) {
+        window.location.reload();
+      }
+    })
     .then(prependToCommentsContainer);
 };
 
