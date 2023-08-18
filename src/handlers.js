@@ -104,7 +104,7 @@ const handleNewComment = (request, response) => {
   });
 
   request.on("end", () => {
-    if (!request.cookies) {
+    if (!request.cookies.username) {
       redirectToLogin(request, response);
       return;
     }
