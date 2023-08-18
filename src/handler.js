@@ -14,6 +14,7 @@ const getMimeType = (extension) => {
     "js": "text/javascript",
     "/": "text/html",
     "/login": "text/html",
+    "/guest-book": "text/html",
   };
 
   return mime[extension];
@@ -52,6 +53,25 @@ const readFile = (path, request, response, ondata) => {
   });
 };
 
+const handleMethodNotAllowed = (_, res) => {
+  res.writeHead(405, "Method Not Allowed");
+  res.end();
+};
+
+const redirectToHome = (request, response) => {
+  response.writeHead(302, { location: "/" });
+  response.end();
+};
+const redirectToGuestBook = (request, response) => {
+  response.writeHead(302, { location: "/guest-book" });
+  response.end();
+};
+
+const redirectToLogin = (request, response) => {
+  response.writeHead(302, { location: "/login" });
+  response.end();
+};
+
 const handleHome = (request, response) => {
   const path = "resource/html/index.html";
   readFile(path, request, response, render);
@@ -78,7 +98,7 @@ const storeComment = (commentParams) => {
   });
 };
 
-const sendCommentLog = (_, response) => {
+const sendCommentLog = (request, response) => {
   fs.readFile("./resource/commentLog.json", "utf-8", (err, commentLog) => {
     if (err) {
       console.error("sendCommentLog: error in reading");
@@ -118,16 +138,6 @@ const handleNewComment = (request, response) => {
   return;
 };
 
-const handleMethodNotAllowed = (_, res) => {
-  res.writeHead(405, "Method Not Allowed");
-  res.end();
-};
-
-const redirectToHome = (request, response) => {
-  response.writeHead(302, { location: "/" });
-  response.end();
-};
-
 const login = (request, response) => {
   let requestBody = "";
   request.on("data", (chunk) => (requestBody += chunk));
@@ -147,6 +157,25 @@ const serveLogin = (request, response) => {
   readFile(path, request, response, render);
 };
 
+const parseCookie = (rawCookies) => {
+  if (!rawCookies) {
+    return;
+  }
+  return Object.fromEntries(
+    rawCookies.split("; ").map((rawCookie) => rawCookie.split("="))
+  );
+};
+
+const serveGuestBook = (request, response) => {
+  if (!request.headers.cookie) {
+    redirectToLogin(request, response);
+    return;
+  }
+
+  const path = "resource/html/guest-book.html";
+  readFile(path, request, response, render);
+};
+
 const handleRoute = (request, response) => {
   console.log(request.url);
   console.log(request.headers.cookie);
@@ -157,6 +186,7 @@ const handleRoute = (request, response) => {
     GET: {
       "/": handleHome,
       "/login": serveLogin,
+      "/guest-book": serveGuestBook,
       "/guest-book/comments": sendCommentLog,
     },
     POST: {
