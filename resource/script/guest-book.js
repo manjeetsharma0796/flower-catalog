@@ -13,12 +13,12 @@ const createCommentContainer = () => {
 };
 
 const generateCommentSection = (commentParams) => {
-  const { name, time, date, comment } = commentParams;
+  const { username, time, date, comment } = commentParams;
   const commentContainer = createCommentContainer();
 
   commentContainer.appendChild(createParaElement(date));
   commentContainer.appendChild(createParaElement(time));
-  commentContainer.appendChild(createParaElement(name));
+  commentContainer.appendChild(createParaElement(username));
   commentContainer.appendChild(createParaElement(comment));
   return commentContainer;
 };
@@ -47,13 +47,12 @@ const fetchAndRenderComments = () => {
 };
 
 const createCommentRequest = () => {
-  const name = document.querySelector("#name").value;
   const comment = document.querySelector("#comment").value;
-  return { name, comment };
+  return { comment };
 };
 
 const submitComment = (commentParams) => {
-  fetch("/guest-book/add-comment", {
+  fetch("/guest-book/comments", {
     method: "POST",
     body: JSON.stringify(commentParams),
     headers: {

@@ -42,14 +42,14 @@ const render = (request, response, content) => {
   response.end(content);
 };
 
-const readFile = (path, request, response, ondata) => {
+const readFile = (path, request, response, onData) => {
   fs.readFile(path, (err, content) => {
     if (err) {
       handleNotFound(path, response);
       return;
     }
 
-    ondata(request, response, content);
+    onData(request, response, content);
   });
 };
 
@@ -62,6 +62,7 @@ const redirectToHome = (request, response) => {
   response.writeHead(302, { location: "/" });
   response.end();
 };
+
 const redirectToGuestBook = (request, response) => {
   response.writeHead(302, { location: "/guest-book" });
   response.end();
@@ -109,11 +110,11 @@ const sendCommentLog = (request, response) => {
   });
 };
 
-const attachTimeStamp = (commentJSON) => {
+const attachTimeStampAndUsername = (commentJSON, username) => {
   const date = new Date().toLocaleDateString();
   const time = new Date().toLocaleTimeString();
   const commentParams = JSON.parse(commentJSON);
-  return { date, time, ...commentParams };
+  return { date, time, username, ...commentParams };
 };
 
 const handleNewComment = (request, response) => {
@@ -125,7 +126,13 @@ const handleNewComment = (request, response) => {
   };
 
   const onEnd = () => {
-    const commentParams = attachTimeStamp(commentJSON);
+    if (!request.cookies) {
+      redirectToLogin(request, response);
+      return;
+    }
+
+    const { username } = request.cookies;
+    const commentParams = attachTimeStampAndUsername(commentJSON, username);
     storeComment(commentParams);
     response.writeHead(200, {
       "content-type": "application/json",
@@ -157,15 +164,6 @@ const serveLogin = (request, response) => {
   readFile(path, request, response, render);
 };
 
-const parseCookie = (rawCookies) => {
-  if (!rawCookies) {
-    return;
-  }
-  return Object.fromEntries(
-    rawCookies.split("; ").map((rawCookie) => rawCookie.split("="))
-  );
-};
-
 const serveGuestBook = (request, response) => {
   if (!request.headers.cookie) {
     redirectToLogin(request, response);
@@ -176,9 +174,19 @@ const serveGuestBook = (request, response) => {
   readFile(path, request, response, render);
 };
 
+const parseCookie = (rawCookies) => {
+  if (!rawCookies) {
+    return;
+  }
+  return Object.fromEntries(
+    rawCookies.split("; ").map((rawCookie) => rawCookie.split("="))
+  );
+};
+
 const handleRoute = (request, response) => {
   console.log(request.url);
-  console.log(request.headers.cookie);
+  request.cookies = parseCookie(request.headers.cookie);
+  console.log(request.cookies);
 
   const { url, method } = request;
 
@@ -190,7 +198,7 @@ const handleRoute = (request, response) => {
       "/guest-book/comments": sendCommentLog,
     },
     POST: {
-      "/guest-book/add-comment": handleNewComment,
+      "/guest-book/comments": handleNewComment,
       "/login": login,
     },
   };
